@@ -9,8 +9,20 @@ jobs:
         rid: ["win-x64", "linux-x64"]
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
+
       - run: dotnet restore
+
       - run: dotnet publish -c Release -o app-${{ matrix.rid }} -r ${{ matrix.rid }} --self-contained true /p:PublishSingleFile=true /p:AssemblyName=app
+
+      - name: Archive app for ${{ matrix.rid }}
+        run: tar cf app-${{ matrix.rid }}.tar app-${{ matrix.rid }}/
+
+      - name: Upload artifact for ${{ matrix.rid }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ matrix.rid }}
+          path: app-${{ matrix.rid }}.tar
